@@ -15,7 +15,7 @@ public class Player : MonoBehaviour
     // Add a MEMBER VARIABLE here for the NavMeshAgent Component named _agent.
     // It does NOT need to be tunable in the Inspector.
 
-    // ??? _agent
+    private NavMeshAgent _agent;
 
     // STEP 1 -----------------------------------------------------------------
 
@@ -24,7 +24,8 @@ public class Player : MonoBehaviour
     // Next, we are going to add a teleport ability to the player. 
     // If the player clicks the SPACE bar, they should teleport back to the
     //      location they were at before they clicked.
-    //
+    private Vector3 _lastKnownLocation;
+    private bool _hasClicked;
     // We need a Vector3 to keep track of their LAST KNOWN LOCATION.
     // Add a MEMBER VARIABLE here for that location.
     // It does NOT need to be tunable in the Inspector.
@@ -47,12 +48,13 @@ public class Player : MonoBehaviour
     //      to use GetComponent to grab this GameObject's NavMeshAgent and store
     //      it in the _agent MEMBER VARIABLE.
     //
-    //private void ????()
-    //{
+    private void Start()
+    {
     //
-    //    _mainCamera = Camera.main;
-    //    _animator = GetComponent<Animator>();
-    //}
+        _mainCamera = Camera.main;
+        _animator = GetComponent<Animator>();
+        _agent = GetComponent<NavMeshAgent>();
+    }
     // STEP 2 -----------------------------------------------------------------
 
     // ------------------------------------------------------------------------
@@ -75,7 +77,7 @@ public class Player : MonoBehaviour
                 // Make the NavMeshAgent move to this position.
                 //
                 // Feature 2 should work after this step.
-
+                _agent.SetDestination(mouseHitPosition);
 
                 // STEP 3 -----------------------------------------------------
 
@@ -84,7 +86,8 @@ public class Player : MonoBehaviour
                 //      walk somewhere new, we should also store our CURRENT
                 //      POSITION in our LAST KNOWN LOCATION MEMBER VARIABLE
                 //      here.
-                // 
+                _lastKnownLocation = transform.position;
+                _hasClicked = true;
                 // You'll need this GameObject's Transform's position.
                 // See an example in the documentation: https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Transform-position.html
 
@@ -104,12 +107,20 @@ public class Player : MonoBehaviour
         // You'll need to read the NavMeshAgent documentation and choose
         //      the correct one: https://docs.unity3d.com/6000.0/Documentation/ScriptReference/AI.NavMeshAgent.html
         // Feature 3 should work after this.
+        if(Input.GetKeyDown(KeyCode.Space) && _hasClicked)
+        {
+            _agent.ResetPath();
 
+            if(_agent.Warp(_lastKnownLocation))
+            {
+                _hasClicked = false;
+            }
+        }
 
         // STEP 6 -------------------------------------------------------------
 
         // Uncomment the below line to fix the Pudu's animation if you want.
-        //_animator.SetBool("isMoving", _agent.velocity.magnitude > 0.0f);
+        _animator.SetBool("isMoving", _agent.velocity.magnitude > 0.0f);
     }
     
     // ------------------------------------------------------------------------
